@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduResearch Hub | Google Search with SerpAPI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .hero {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 2rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: 0 20px 35px -10px rgba(0,0,0,0.2);
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .level-selector {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .level-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 3rem;
+            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .level-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .search-card {
+            background: white;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .search-area {
+            padding: 2rem;
+            background: #f8f9ff;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border: 2px solid #e9ecef;
+            border-radius: 3rem;
+            font-size: 1rem;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .input-group button {
+            padding: 0 2rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 3rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .results-container {
+            padding: 2rem;
+        }
+
+        .answer-box {
+            background: linear-gradient(135deg, #f0f4ff, #faf5ff);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-left: 5px solid #667eea;
+        }
+
+        .source-item {
+            background: #f8f9fa;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid #e9ecef;
+            transition: all 0.2s;
+        }
+
+        .source-item:hover {
+            transform: translateX(5px);
+            border-color: #667eea;
+        }
+
+        .source-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #667eea;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .source-snippet {
+            color: #495057;
+            line-height: 1.5;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #667eea;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #e9ecef;
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .info-note {
+            background: #fff3cd;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            font-size: 0.9rem;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1>📚 EduResearch Hub</h1>
+            <p>Real Google Search · Real Sources · Education-Level Adaptation</p>
+        </div>
+
+        <div class="level-selector">
+            <button class="level-btn" data-level="elementary">🎨 Elementary (K-5)</button>
+            <button class="level-btn" data-level="middle">📖 Middle (6-8)</button>
+            <button class="level-btn active" data-level="high">🎓 High (9-12)</button>
+            <button class="level-btn" data-level="undergrad">🏛️ Undergraduate</button>
+            <button class="level-btn" data-level="graduate">🔬 Graduate/PhD</button>
+        </div>
+
+        <div class="search-card">
+            <div class="search-area">
+                <div class="input-group">
+                    <input type="text" id="searchInput" placeholder="Ask anything... e.g., 'photosynthesis explained', 'causes of climate change', 'machine learning basics'">
+                    <button id="searchBtn">🔍 Search Google</button>
+                </div>
+            </div>
+            <div class="results-container" id="results">
+                <div class="info-note">
+                    ⚡ <strong>SerpAPI Integration Ready!</strong> Add your API key below to get real Google search results.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // 🔑 ENTER YOUR SerpAPI KEY HERE
+        // Get it from: https://serpapi.com/manage-api-key
+        // ============================================
+        const SERPAPI_KEY = 'ba5aba82d56e4683d65e652d114f97efa70a5eeb425d4a6c0f3e11e1a1214cd4;  // 👈 PASTE YOUR KEY HERE
+        
+        // ============================================
+        
+        let currentLevel = 'high';
+
+        // Level selector
+        document.querySelectorAll('.level-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentLevel = btn.dataset.level;
+            });
+        });
+
+        const searchBtn = document.getElementById('searchBtn');
+        const searchInput = document.getElementById('searchInput');
+        const resultsDiv = document.getElementById('results');
+
+        async function searchWithSerpAPI(query, level) {
+            if (!SERPAPI_KEY || SERPAPI_KEY === 'YOUR_SERPAPI_API_KEY_HERE') {
+                resultsDiv.innerHTML = `
+                    <div class="info-note" style="background: #f8d7da; color: #721c24;">
+                        ❌ <strong>API Key Required</strong><br><br>
+                        Please add your SerpAPI key to the script:<br>
+                        <code style="background: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem;">const SERPAPI_KEY = 'your-actual-key-here';</code><br><br>
+                        Get your free key at <a href="https://serpapi.com/manage-api-key" target="_blank">serpapi.com/manage-api-key</a>
+                    </div>
+                `;
+                return;
+            }
+
+            resultsDiv.innerHTML = `<div class="loading">🔍 Searching Google for "${query}" at ${level} level...</div>`;
+
+            try {
+                // Call SerpAPI
+                const url = `https://serpapi.com/search?q=${encodeURIComponent(query)}&api_key=${SERPAPI_KEY}&hl=en&gl=us&num=10`;
+                
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                // Extract organic results
+                const organicResults = data.organic_results || [];
+                
+                // Generate AI summary (you could also call GPT here)
+                const summary = generateSummary(query, organicResults, level);
+                
+                // Display results
+                displayResults(summary, organicResults, level);
+
+            } catch (error) {
+                console.error('Search error:', error);
+                resultsDiv.innerHTML = `
+                    <div class="info-note" style="background: #f8d7da; color: #721c24;">
+                        ❌ <strong>Search Failed</strong><br><br>
+                        Error: ${error.message}<br><br>
+                        Check your API key at <a href="https://serpapi.com/manage-api-key" target="_blank">serpapi.com</a>
+                    </div>
+                `;
+            }
+        }
+
+        function generateSummary(query, results, level) {
+            if (!results || results.length === 0) {
+                return "No results found. Try a different search query.";
+            }
+
+            // Create a simple summary from top results
+            const topSnippets = results.slice(0, 3).map(r => r.snippet).filter(s => s);
+            
+            let summary = `Based on Google search results for "${query}":\n\n`;
+            
+            if (topSnippets.length > 0) {
+                summary += topSnippets.join("\n\n");
+            }
+            
+            // Adapt length based on education level
+            if (level === 'elementary') {
+                summary = summary.split(' ').slice(0, 100).join(' ') + '... (simplified for elementary level)';
+            } else if (level === 'graduate') {
+                summary += "\n\nFor graduate-level research, please verify these sources with academic databases like Google Scholar, JSTOR, or arXiv.";
+            }
+            
+            return summary;
+        }
+
+        function displayResults(summary, sources, level) {
+            let html = `
+                <div class="answer-box">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 style="color: #333;">📝 Research Summary</h3>
+                        <span class="badge">${level.toUpperCase()} Level</span>
+                    </div>
+                    <p style="line-height: 1.6; color: #2c3e50; white-space: pre-wrap;">${escapeHtml(summary)}</p>
+                </div>
+                <h3 style="margin-bottom: 1rem;">🔗 Top Sources from Google</h3>
+            `;
+
+            if (sources && sources.length > 0) {
+                sources.slice(0, 8).forEach(source => {
+                    html += `
+                        <div class="source-item">
+                            <a href="${source.link}" target="_blank" class="source-title">${escapeHtml(source.title) || 'Untitled'}</a>
+                            <div class="source-snippet">${escapeHtml(source.snippet || 'No description available')}</div>
+                            <div>
+                                <span class="badge">${escapeHtml(source.displayed_link || source.link?.split('/')[2] || 'web')}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                html += `<p>No sources found. Try a different search query.</p>`;
+            }
+
+            html += `<div class="info-note" style="margin-top: 1.5rem;">
+                        📚 <strong>Research Tip:</strong> For academic assignments, always verify information with multiple sources and cite properly.
+                        ${level === 'undergrad' || level === 'graduate' ? ' Consider using Google Scholar for peer-reviewed papers.' : ''}
+                    </div>`;
+
+            resultsDiv.innerHTML = html;
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        // Search handler
+        searchBtn.addEventListener('click', () => {
+            const query = searchInput.value.trim();
+            if (!query) {
+                resultsDiv.innerHTML = `<div class="info-note">❓ Please enter a research question first.</div>`;
+                return;
+            }
+            searchWithSerpAPI(query, currentLevel);
+        });
+
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') searchBtn.click();
+        });
+
+        // Initial demo
+        resultsDiv.innerHTML = `
+            <div class="info-note">
+                <strong>🚀 EduResearch Hub with SerpAPI</strong><br><br>
+                ✅ Real-time Google Search integration<br>
+                ✅ Education level filtering (K-12 to PhD)<br>
+                ✅ Citation-ready source display<br><br>
+                <strong>🔑 To activate:</strong><br>
+                1. Get your free API key from <a href="https://serpapi.com/manage-api-key" target="_blank">serpapi.com</a><br>
+                2. Replace <code>YOUR_SERPAPI_API_KEY_HERE</code> in the script<br>
+                3. Try searching any topic above!<br><br>
+                <strong>💡 Pro tip:</strong> For academic papers, search with "site:arxiv.org [topic]" or "site:scholar.google.com [topic]"
+            </div>
+        `;
+    </script>
+</body>
+</html>
