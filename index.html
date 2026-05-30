@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduResearch Hub | Working SerpAPI Integration</title>
+    <title>EduResearch Hub | Secure Academic Search</title>
     <style>
         * {
             margin: 0;
@@ -23,8 +23,8 @@
             margin: 0 auto;
         }
 
-        .header {
-            background: white;
+        .hero {
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 1rem;
             padding: 2rem;
             margin-bottom: 2rem;
@@ -41,51 +41,20 @@
             margin-bottom: 0.5rem;
         }
 
-        .api-card, .level-card, .search-card, .results-card {
-            background: white;
-            border-radius: 1rem;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-
-        .api-input-group {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            margin-top: 1rem;
-        }
-
-        .api-input-group input {
-            flex: 2;
-            padding: 0.75rem 1rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 0.5rem;
-            font-family: monospace;
-        }
-
-        .api-input-group button {
-            padding: 0.75rem 1.5rem;
-            background: #10b981;
-            color: white;
-            border: none;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .level-buttons {
+        .level-selector {
             display: flex;
             gap: 0.75rem;
             flex-wrap: wrap;
-            margin-top: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
         }
 
         .level-btn {
-            padding: 0.5rem 1.25rem;
-            border-radius: 2rem;
-            border: 2px solid #e2e8f0;
-            background: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 3rem;
+            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
         }
@@ -93,51 +62,77 @@
         .level-btn.active {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            border-color: transparent;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
 
-        .search-input-group {
+        .search-card {
+            background: white;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .search-area {
+            padding: 2rem;
+            background: #f8f9ff;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .input-group {
             display: flex;
             gap: 1rem;
             flex-wrap: wrap;
-            margin-top: 1rem;
         }
 
-        .search-input-group input {
+        .input-group input {
             flex: 1;
-            padding: 1rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 0.5rem;
+            padding: 1rem 1.5rem;
+            border: 2px solid #e9ecef;
+            border-radius: 3rem;
             font-size: 1rem;
         }
 
-        .search-input-group button {
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .input-group button {
             padding: 0 2rem;
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border: none;
-            border-radius: 0.5rem;
+            border-radius: 3rem;
             font-weight: 600;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .search-input-group button:disabled {
-            opacity: 0.5;
+        .input-group button:disabled {
+            opacity: 0.6;
             cursor: not-allowed;
         }
 
-        .answer-section {
-            background: #f0f4ff;
-            border-radius: 0.75rem;
+        .results-container {
+            padding: 2rem;
+        }
+
+        .answer-box {
+            background: linear-gradient(135deg, #f0f4ff, #faf5ff);
+            border-radius: 1rem;
             padding: 1.5rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
+            border-left: 5px solid #667eea;
         }
 
         .source-item {
-            border: 1px solid #e2e8f0;
+            background: #f8f9fa;
             border-radius: 0.75rem;
             padding: 1rem;
             margin-bottom: 1rem;
+            border: 1px solid #e9ecef;
             transition: all 0.2s;
         }
 
@@ -147,6 +142,7 @@
         }
 
         .source-title {
+            font-size: 1rem;
             font-weight: 600;
             color: #667eea;
             text-decoration: none;
@@ -154,108 +150,138 @@
             margin-bottom: 0.5rem;
         }
 
+        .source-snippet {
+            color: #495057;
+            line-height: 1.5;
+        }
+
         .loading {
             text-align: center;
-            padding: 2rem;
+            padding: 3rem;
             color: #667eea;
         }
 
         .badge {
             display: inline-block;
-            background: #e2e8f0;
+            background: #e9ecef;
             padding: 0.25rem 0.75rem;
             border-radius: 2rem;
             font-size: 0.75rem;
             margin-top: 0.5rem;
-            margin-right: 0.5rem;
-        }
-
-        .test-success {
-            background: #d1fae5;
-            color: #065f46;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            margin-top: 1rem;
-        }
-
-        .test-error {
-            background: #fee2e2;
-            color: #991b1b;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            margin-top: 1rem;
         }
 
         .info-note {
-            background: #dbeafe;
-            border-left: 4px solid #3b82f6;
+            background: #fff3cd;
+            border-radius: 0.75rem;
             padding: 1rem;
+            font-size: 0.9rem;
+            color: #856404;
+        }
+
+        .error-note {
+            background: #f8d7da;
+            color: #721c24;
+            border-radius: 0.75rem;
+            padding: 1rem;
+        }
+
+        .api-status {
+            background: #e8f5e9;
             border-radius: 0.5rem;
+            padding: 0.75rem;
             margin-bottom: 1rem;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .api-status.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .api-status.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.8rem;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
+        <div class="hero">
             <h1>📚 EduResearch Hub</h1>
-            <p>Working Google Search with SerpAPI + CORS Proxy</p>
+            <p>Secure Academic Research · Powered by DSEC Gateway</p>
         </div>
 
-        <div class="info-note">
-            <strong>⚠️ Important - Fix for "Freezing" Issue:</strong><br>
-            SerpAPI blocks direct browser requests. This version uses a CORS proxy to fix that.<br>
-            <strong>First time? Click the link below to enable the proxy:</strong>
-            <a href="https://cors-anywhere.herokuapp.com/corsdemo" target="_blank" style="display: inline-block; margin-top: 0.5rem;">👉 Click here to request proxy access (free, takes 5 seconds)</a>
-        </div>
+        <div id="apiStatus" class="api-status">🔌 Connecting to secure gateway...</div>
 
-        <div class="api-card">
-            <h3>🔑 SerpAPI Configuration</h3>
-            <div class="api-input-group">
-                <input type="password" id="apiKeyInput" placeholder="Enter your SerpAPI key" autocomplete="off">
-                <button id="testApiBtn">✅ Test & Save Key</button>
-            </div>
-            <div id="testResult"></div>
-        </div>
-
-        <div class="level-card">
-            <h3>🎓 Education Level</h3>
-            <div class="level-buttons">
-                <button class="level-btn" data-level="elementary">🎨 Elementary (K-5)</button>
-                <button class="level-btn" data-level="middle">📖 Middle (6-8)</button>
-                <button class="level-btn active" data-level="high">🎓 High (9-12)</button>
-                <button class="level-btn" data-level="undergrad">🏛️ Undergraduate</button>
-                <button class="level-btn" data-level="graduate">🔬 Graduate/PhD</button>
-            </div>
+        <div class="level-selector">
+            <button class="level-btn" data-level="elementary">🎨 Elementary (K-5)</button>
+            <button class="level-btn" data-level="middle">📖 Middle (6-8)</button>
+            <button class="level-btn active" data-level="high">🎓 High (9-12)</button>
+            <button class="level-btn" data-level="undergrad">🏛️ Undergraduate</button>
+            <button class="level-btn" data-level="graduate">🔬 Graduate/PhD</button>
         </div>
 
         <div class="search-card">
-            <h3>🔬 Research Question</h3>
-            <div class="search-input-group">
-                <input type="text" id="questionInput" placeholder="e.g., How does photosynthesis work?">
-                <button id="searchBtn">🚀 Search Now</button>
+            <div class="search-area">
+                <div class="input-group">
+                    <input type="text" id="searchInput" placeholder="Ask anything... e.g., 'photosynthesis explained', 'causes of climate change'">
+                    <button id="searchBtn">🔍 Search & Research</button>
+                </div>
+            </div>
+            <div class="results-container" id="results">
+                <div class="info-note">
+                    🔒 <strong>Secure Gateway Active</strong><br><br>
+                    Your search queries are routed through DSEC's secure backend.<br>
+                    API keys are never exposed to your browser.
+                </div>
             </div>
         </div>
 
-        <div id="resultsCard" class="results-card" style="display: none;">
-            <div id="resultsContent"></div>
-        </div>
+        <footer>
+            🔐 Powered by DSEC Gateway | Secure by design | No API keys in frontend
+        </footer>
     </div>
 
     <script>
-        const apiKeyInput = document.getElementById('apiKeyInput');
-        const testApiBtn = document.getElementById('testApiBtn');
-        const testResultDiv = document.getElementById('testResult');
-        const searchBtn = document.getElementById('searchBtn');
-        const questionInput = document.getElementById('questionInput');
-        const resultsCard = document.getElementById('resultsCard');
-        const resultsContent = document.getElementById('resultsContent');
-
+        // ============================================
+        // DSEC SECURE GATEWAY - NO API KEYS HERE
+        // ============================================
+        // The gateway URL points to your Cloudflare Worker
+        // All API keys are stored as secrets on the server
+        const GATEWAY_URL = 'https://ai-gateway.ntokozomdluli-it.workers.dev';
+        
         let currentLevel = 'high';
-        let apiKey = localStorage.getItem('serpapi_key') || '';
 
-        if (apiKey) {
-            apiKeyInput.value = apiKey;
+        // Check if gateway is reachable
+        async function checkGatewayStatus() {
+            const statusDiv = document.getElementById('apiStatus');
+            try {
+                const response = await fetch(`${GATEWAY_URL}/health`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    statusDiv.innerHTML = `✅ Secure gateway connected (v${data.version}). API keys are hidden on the server.`;
+                    statusDiv.className = 'api-status success';
+                    return true;
+                } else {
+                    throw new Error('Gateway responded with error');
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `⚠️ Cannot reach gateway. Make sure your worker is deployed at: ${GATEWAY_URL}`;
+                statusDiv.className = 'api-status error';
+                return false;
+            }
         }
 
         // Level selector
@@ -267,138 +293,91 @@
             });
         });
 
-        // Test SerpAPI key using CORS proxy
-        async function testSerpApiKey(key) {
-            const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-            const targetUrl = `https://serpapi.com/search?q=test&api_key=${key}&engine=google&num=1`;
-            
-            try {
-                const response = await fetch(proxyUrl + targetUrl, {
-                    headers: {
-                        'Origin': window.location.origin,
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                });
-                
-                const data = await response.json();
-                
-                if (data.error) {
-                    return { success: false, message: `Invalid key: ${data.error}` };
-                }
-                
-                if (data.search_metadata?.status === 'Success') {
-                    return { success: true, message: '✓ API key works! Ready to search Google.' };
-                }
-                
-                return { success: false, message: 'Key validation failed.' };
-            } catch (error) {
-                return { success: false, message: `Error: ${error.message}. Make sure you've enabled the CORS proxy (click the link above).` };
-            }
-        }
+        const searchBtn = document.getElementById('searchBtn');
+        const searchInput = document.getElementById('searchInput');
+        const resultsDiv = document.getElementById('results');
 
-        testApiBtn.addEventListener('click', async () => {
-            const key = apiKeyInput.value.trim();
-            if (!key) {
-                testResultDiv.innerHTML = '<div class="test-error">❌ Please enter an API key.</div>';
-                return;
-            }
-
-            testResultDiv.innerHTML = '<div class="loading" style="padding: 0.5rem;">Testing key...</div>';
-            
-            const result = await testSerpApiKey(key);
-            
-            if (result.success) {
-                apiKey = key;
-                localStorage.setItem('serpapi_key', key);
-                testResultDiv.innerHTML = `<div class="test-success">${result.message}</div>`;
-                setTimeout(() => {
-                    testResultDiv.innerHTML = '';
-                }, 3000);
-            } else {
-                testResultDiv.innerHTML = `<div class="test-error">❌ ${result.message}</div>`;
-            }
-        });
-
-        async function searchGoogle(query, level, key) {
-            resultsCard.style.display = 'block';
-            resultsContent.innerHTML = '<div class="loading">🔍 Searching Google (this may take 5-10 seconds)...</div>';
-
-            const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-            const targetUrl = `https://serpapi.com/search?q=${encodeURIComponent(query)}&api_key=${key}&engine=google&hl=en&gl=us&num=8`;
+        async function searchWithGateway(query, level) {
+            resultsDiv.innerHTML = `<div class="loading">🔍 Searching securely via DSEC gateway...</div>`;
 
             try {
-                const response = await fetch(proxyUrl + targetUrl, {
+                // Call your secure Cloudflare Worker (which has the API keys)
+                const response = await fetch(`${GATEWAY_URL}/v1/search`, {
+                    method: 'POST',
                     headers: {
-                        'Origin': window.location.origin,
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                        'Content-Type': 'application/json',
+                        'X-API-Key': 'ag_test_123'
+                    },
+                    body: JSON.stringify({
+                        query: query,
+                        level: level
+                    })
                 });
-                
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `Gateway error: ${response.status}`);
+                }
+
                 const data = await response.json();
-
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-
-                const organicResults = data.organic_results || [];
                 
-                if (organicResults.length === 0) {
-                    throw new Error('No results found.');
-                }
-
-                displayResults(organicResults, level, data, query);
+                // Display results
+                displayResults(data.summary, data.results, level);
 
             } catch (error) {
-                resultsContent.innerHTML = `
-                    <div style="background: #fee2e2; padding: 1.5rem; border-radius: 0.75rem;">
-                        <strong>❌ Search Failed</strong><br><br>
+                console.error('Search error:', error);
+                resultsDiv.innerHTML = `
+                    <div class="error-note">
+                        ❌ <strong>Search Failed</strong><br><br>
                         Error: ${error.message}<br><br>
-                        <strong>Solutions:</strong><br>
-                        1. Click the "Click here to request proxy access" link at the top of the page<br>
-                        2. Wait for "Request temporary access to the demo server" to appear, then click it<br>
-                        3. Refresh this page and try again
+                        <strong>Troubleshooting:</strong><br>
+                        1. Make sure your Cloudflare Worker is deployed<br>
+                        2. Check that the SERPAPI_KEY secret is set in Cloudflare<br>
+                        3. Run: npx wrangler secret put SERPAPI_KEY
                     </div>
                 `;
             }
         }
 
-        function displayResults(sources, level, metadata, query) {
+        function displayResults(summary, sources, level) {
             const levelNames = {
                 elementary: 'Elementary School',
-                middle: 'Middle School',
+                middle: 'Middle School', 
                 high: 'High School',
                 undergrad: 'Undergraduate',
                 graduate: 'Graduate/PhD'
             };
 
             let html = `
-                <div class="answer-section">
-                    <h3 style="margin-bottom: 1rem;">📝 Research Results for: "${escapeHtml(query)}"</h3>
-                    <div style="margin-top: 1rem;">
-                        <span class="badge">${levelNames[level] || level} Level</span>
-                        <span class="badge">🔍 Real Google Results</span>
-                        <span class="badge">${sources.length} sources found</span>
+                <div class="answer-box">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                        <h3 style="color: #333;">📝 Research Summary</h3>
+                        <span class="badge" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">${levelNames[level] || level.toUpperCase()} Level</span>
                     </div>
+                    <p style="line-height: 1.6; color: #2c3e50; white-space: pre-wrap;">${escapeHtml(summary || 'No summary available')}</p>
                 </div>
-                <h3 style="margin-bottom: 1rem;">🔗 Top Search Results</h3>
+                <h3 style="margin-bottom: 1rem;">🔗 Top Sources (${sources ? sources.length : 0})</h3>
+                <div class="sources-grid">
             `;
 
-            sources.forEach((source, index) => {
-                html += `
-                    <div class="source-item">
-                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                            <span class="badge" style="background: #667eea; color: white;">${index + 1}</span>
-                            <span class="badge">${source.displayed_link || source.link?.split('/')[2] || 'web'}</span>
+            if (sources && sources.length > 0) {
+                sources.slice(0, 8).forEach(source => {
+                    html += `
+                        <div class="source-item">
+                            <a href="${source.link || source.url}" target="_blank" class="source-title">${escapeHtml(source.title) || 'Source'}</a>
+                            <div class="source-snippet">${escapeHtml(source.snippet || source.content || 'No description available')}</div>
+                            <div>
+                                <span class="badge">${escapeHtml(source.displayed_link || source.link?.split('/')[2] || 'web')}</span>
+                            </div>
                         </div>
-                        <a href="${source.link}" target="_blank" class="source-title">${escapeHtml(source.title) || 'Source'}</a>
-                        <div style="color: #4b5563; font-size: 0.9rem; line-height: 1.5; margin-top: 0.5rem;">
-                            ${escapeHtml(source.snippet || 'No description available')}
-                        </div>
-                    </div>
-                `;
-            });
+                    `;
+                });
+            } else {
+                html += `<p>No sources found. Try a different search query.</p>`;
+            }
 
-            resultsContent.innerHTML = html;
+            html += `</div>`;
+            resultsDiv.innerHTML = html;
         }
 
         function escapeHtml(str) {
@@ -411,39 +390,26 @@
             });
         }
 
+        // Search handler
         searchBtn.addEventListener('click', async () => {
-            const query = questionInput.value.trim();
+            const query = searchInput.value.trim();
             if (!query) {
-                resultsCard.style.display = 'block';
-                resultsContent.innerHTML = '<div style="background: #fff3cd; padding: 1rem;">❓ Please enter a research question.</div>';
+                resultsDiv.innerHTML = `<div class="info-note">❓ Please enter a research question first.</div>`;
                 return;
             }
-
-            const key = apiKeyInput.value.trim() || localStorage.getItem('serpapi_key');
-            if (!key) {
-                resultsCard.style.display = 'block';
-                resultsContent.innerHTML = '<div style="background: #fee2e2; padding: 1rem;">❌ Please enter and save your SerpAPI key first.</div>';
-                return;
-            }
-
-            await searchGoogle(query, currentLevel, key);
+            
+            const isConnected = await checkGatewayStatus();
+            if (!isConnected) return;
+            
+            await searchWithGateway(query, currentLevel);
         });
 
-        questionInput.addEventListener('keypress', (e) => {
+        searchInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') searchBtn.click();
         });
 
-        resultsCard.style.display = 'block';
-        resultsContent.innerHTML = `
-            <div class="info-note">
-                <strong>✅ Ready to search! Follow these steps to fix the freezing issue:</strong><br><br>
-                <strong>Step 1:</strong> Click the blue link above to enable the CORS proxy<br>
-                <strong>Step 2:</strong> Click "Request temporary access" on the new page<br>
-                <strong>Step 3:</strong> Return here and enter your SerpAPI key<br>
-                <strong>Step 4:</strong> Click "Test & Save Key" then search!<br><br>
-                <strong>📌 Try searching:</strong> "What is climate change?" or "How does AI work?"
-            </div>
-        `;
+        // Check gateway on load
+        checkGatewayStatus();
     </script>
 </body>
 </html>
